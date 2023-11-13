@@ -3,6 +3,7 @@ import threading
 import psutil
 import pathlib
 import colorama
+import json
 from Baralho import Baralho
 
 
@@ -29,69 +30,230 @@ def getServerInfo(filename=(str(pathlib.Path(__file__).parent)+'/server_info')):
     except FileNotFoundError:
         exit(colorama.Back.RED+f"arquivo '{filename}' não encontrado!!")
 
+def blackJack(cartas):
+    sum = 0
+    count = 0
+    for i in cartas:
+        if (i[0]=='K') | (i[0]=='Q') | (i[0]=='J') | ((i[0]=='1') & (i[1]=='0')):
+            sum+=10
+        elif i[0]=='A':
+            sum+=11
+            count+=1
+        else:
+            sum+=int(i[0])
 
-## Exemplo do handle cliente.
+    if sum<=21 or count==0:
+        return sum
+    
+    while count>0 and sum > 21:
+        sum-=10
+        count-=1
+    
+    return sum
+
 def handle_client(csocket, endereco):
-    baralho = Baralho()
     print(f"Novo jogador: {endereco}")
+
+    total=0
+    round=0
+    bet=0
+    dealerCards = []
+    playerCards = []
+    baralho = Baralho()
+    
     while True:
         mensagem = csocket.recv(1024).decode('utf-8')
+        # Se a mensagem estiver vazia, o cliente se desconectou
         if not mensagem:
-            # Se a mensagem estiver vazia, o cliente se desconectou
             print(f"Jogador {endereco} se desconectou")
             break
 
-        game_status = {}
-        headers = mensagem.splitlines()
-        for header in headers:
-            dkey, dvalue = header.split(":")
-            game_status.update({dkey: dvalue})
+        data = json.loads(mensagem)
+        resposta = {}
 
-        resposta = ""
+        match data['code']:
+            case 0:
+                # Inicio do jogo
+                total=100
+                resposta = {
+                    "code": 1,
+                    "payload": {
+                        "total": 100
+                    }
+                }
+            case 10:
+                # Aposta inicial
+                if data['payload']['bet'] > total:
+                    # Aposta invalida
+                    resposta = {
+                        "code":11
+                    }
+                else:
+                    # Aposta válida
+                    round+=1
+                    bet = data['payload']['bet']
+                    total -= bet
+                    playerCards += [baralho.pegarCarta(), baralho.pegarCarta()]
+                    dealerCards += [baralho.pegarCarta(), baralho.pegarCarta()]
 
-        if game_status['stat'] == 'inicio' or game_status['stat'] == 'meio':
-            resposta += "stat:esperar_aposta\n"
-            resposta += "seq_maq:\n"
-            resposta += "seq_pla:\n"
-            resposta += "aposta:0\n"
-            resposta += "dinheiro:100" if game_status['stat'] == 'inicio' else f'dinheiro:{game_status["dinheiro"]}'
+                    resposta = {
+                        "code": 12,
+                        "payload": {
+                            "money": total,
+                            "bet": bet,
+                            "round": round,
+                            "dealerCards": dealerCards,
+                            "playerCards": playerCards,
+                        }
+                    }
+            case 20:
+                # Jogador pega uma nova carta
+                playerCards += [baralho.pegarCarta()]
 
-        elif game_status['stat'] == '2j':
-            pass
+                # Verifica se jogador passou de 21 pontos
+                if blackJack(playerCards) <= 21:
+                    # OK
+                    resposta = {
+                        "code": 24,
+                        "payload": {
+                            "money": total,
+                            "bet": bet,
+                            "round": round,
+                            "dealerCards": dealerCards,
+                            "playerCards": playerCards,
+                        }
+                    }
+                else:
+                    # Jogador passou de 21 pontos: Fim da rodada
+                    resposta = {
+                        "code": 26,
+                        "payload": {
+                            "money": total,
+                            "bet": bet,
+                            "round": round,
+                            "dealerCards": dealerCards,
+                            "playerCards": playerCards,
+                        }
+                    }
+            case 21:
+                # Jogador escolheu Manter
+                dealerBlackJack = blackJack(dealerCards)
 
-        elif game_status['stat'] == '1jp':
-            pass
-        
-        elif game_status['stat'] == '1jm':
-            pass
-        
-        elif game_status['stat'] == 'fim':
-            csocket.close()
+                # Dealer vai pegar novas cartas enquanto a soma de suas cartas for menor que 21 pontos ou maior que os pontos do jogador
+                while (dealerBlackJack < 21) & (dealerBlackJack < blackJack(playerCards)):
+                    dealerCards += [baralho.pegarCarta()]
+                
+                if dealerBlackJack < 21:
+                    # Mesa ganhou e fim da rodada
+                    resposta = {
+                        "code": 26,
+                        "payload": {
+                            "money": total,
+                            "bet": bet,
+                            "round": round,
+                            "dealerCards": dealerCards,
+                            "playerCards": playerCards,
+                        }
+                    }
+                else:
+                    # Mesa perdeu e fim da rodada
+                    total += 2*bet
+                    resposta = {
+                        "code": 26,
+                        "payload": {
+                            "money": total,
+                            "bet": bet,
+                            "round": round,
+                            "dealerCards": dealerCards,
+                            "playerCards": playerCards,
+                        }
+                    }
+            case 22:
+                # Dobrar
+                if bet > total:
+                    # Caso invalido
+                    resposta = {
+                        "code":25,
+                        "payload": {
+                            "money": total,
+                            "bet": bet,
+                            "round": round,
+                            "dealerCards": dealerCards,
+                            "playerCards": playerCards,
+                        }
+                    }
+                else:
+                    # Caso valido
+                    total -= bet
+                    bet += bet
+                    playerCards += [baralho.pegarCarta()]
+                    dealerBlackJack = blackJack(dealerCards)
+                    playerBlackJack = blackJack(playerCards)
 
-        ##############################################################
-        ###                                                        ###
-        ###           JOGO ACONTECE E MUDA A RESPOSTA.             ###
-        ###                                                        ###
-        ##############################################################
-        csocket.send(resposta.encode('utf-8'))
+                    if (playerBlackJack < 21):
+                        while (dealerBlackJack < 21) & (dealerBlackJack < playerBlackJack):
+                            dealerCards += [baralho.pegarCarta()]
+
+                    if (playerBlackJack > 21) | (dealerBlackJack < 21):
+                        # Mesa ganhou e fim da rodada
+                        resposta = {
+                            "code": 26,
+                            "payload": {
+                                "money": total,
+                                "bet": bet,
+                                "round": round,
+                                "dealerCards": dealerCards,
+                                "playerCards": playerCards,
+                            }
+                        }
+                    else:
+                        # Player ganhou e fim da rodada
+                        total += 2*bet
+                        resposta = {
+                            "code": 26,
+                            "payload": {
+                                "money": total,
+                                "bet": bet,
+                                "round": round,
+                                "dealerCards": dealerCards,
+                                "playerCards": playerCards,
+                            }
+                        }
+            case 23:
+                # Desistir // fim da rodada
+                total += bet/2
+                resposta = {
+                    "code": 26,
+                    "payload": {
+                        "money": total,
+                        "bet": bet,
+                        "round": round,
+                        "dealerCards": dealerCards,
+                        "playerCards": playerCards,
+                    }
+                }
+            case 27:
+                # Sair
+                resposta = {
+                    "code": 28
+                }
+                csocket.send(json.dumps(resposta).encode('utf-8'))
+                break
+
+        csocket.send(json.dumps(resposta).encode('utf-8'))
     csocket.close()
-
 
 def main(handle, server_info):
     ssocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    
-    port = server_info['port']
-    ssocket.bind((getIPAddress(), int(port)))
-
+    ssocket.bind((getIPAddress(), int(server_info['port'])))
     ssocket.listen(5)
 
-    print(f"{getIPAddress()}:{server_info['port']}")
+    print(f"Server up and running on {getIPAddress()}:{server_info['port']}!")
 
     while True:
         csocket, address = ssocket.accept()
         cthread = threading.Thread(target=handle, args=(csocket, address))
         cthread.start()
         
-
 if __name__ == '__main__':
-    main(handle_client,getServerInfo())
+    main(handle_client, getServerInfo())
