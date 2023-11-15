@@ -47,12 +47,22 @@ def main():
             dinheiroDoClient = dadosDoServidor['payload']['total']
 
         if dadosDoServidor['code'] == 11:
-            dadosDoServidor.update({'payload':{'total':dinheiroDoClientAnterior}})
+            dadosDoServidor.update({'payload':{'total': dinheiroDoClientAnterior}})
 
         if dadosDoServidor['code'] == 26:
-            dadosDoServidor['payload'].update({'perdeu_ou_ganhou':dinheiroDoClient >= dinheiroDoClientAnterior + apostaAntiga})
+            status=''
+            if dinheiroDoClient == dinheiroDoClientAnterior + 2*apostaAntiga:
+                status='ganhou'
+            elif dinheiroDoClient == dinheiroDoClientAnterior + apostaAntiga:
+                status='empatou'
+            elif dinheiroDoClient == dinheiroDoClientAnterior + apostaAntiga/2:
+                status='desistiu'
+            else:
+                status='perdeu'
+            dadosDoServidor['payload'].update({'perdeu_ou_ganhou': status})
 
         if dadosDoServidor['code'] == 28:
+            dadosProServidor = jogoClient.replyMannager(dadosDoServidor)
             break
 
         dadosProServidor = jogoClient.replyMannager(dadosDoServidor)

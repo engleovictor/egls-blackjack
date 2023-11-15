@@ -135,15 +135,21 @@ def handle_client(csocket, endereco):
                             "playerCards": playerCards,
                         }
                     }
+                    dealerCards = []
+                    playerCards = []
+                    baralho = Baralho()
+                    if total==0:
+                        resposta = {
+                            "code": 28
+                        }
+
             case 21:
                 # Jogador escolheu Manter
-                dealerBlackJack = blackJack(dealerCards)
-
                 # Dealer vai pegar novas cartas enquanto a soma de suas cartas for menor que 21 pontos ou maior que os pontos do jogador
-                while (dealerBlackJack < 21) & (dealerBlackJack < blackJack(playerCards)):
+                while (blackJack(dealerCards) < 21) & (blackJack(dealerCards) < blackJack(playerCards)):
                     dealerCards += [baralho.pegarCarta()]
                 
-                if dealerBlackJack < 21:
+                if blackJack(dealerCards) <= 21:
                     # Mesa ganhou e fim da rodada
                     resposta = {
                         "code": 26,
@@ -154,7 +160,7 @@ def handle_client(csocket, endereco):
                             "dealerCards": dealerCards,
                             "playerCards": playerCards,
                         }
-                    }
+                    }                    
                 else:
                     # Mesa perdeu e fim da rodada
                     total += 2*bet
@@ -167,6 +173,26 @@ def handle_client(csocket, endereco):
                             "dealerCards": dealerCards,
                             "playerCards": playerCards,
                         }
+                    }
+                if(blackJack(dealerCards)==blackJack(playerCards)):
+                    # Empate
+                    total+=bet
+                    resposta = {
+                        "code": 26,
+                        "payload": {
+                            "money": total,
+                            "bet": bet,
+                            "round": round,
+                            "dealerCards": dealerCards,
+                            "playerCards": playerCards,
+                        }
+                    }
+                dealerCards = []
+                playerCards = []
+                baralho = Baralho()
+                if total==0:
+                    resposta = {
+                        "code": 28
                     }
             case 22:
                 # Dobrar
@@ -187,14 +213,13 @@ def handle_client(csocket, endereco):
                     total -= bet
                     bet += bet
                     playerCards += [baralho.pegarCarta()]
-                    dealerBlackJack = blackJack(dealerCards)
                     playerBlackJack = blackJack(playerCards)
 
                     if (playerBlackJack < 21):
-                        while (dealerBlackJack < 21) & (dealerBlackJack < playerBlackJack):
+                        while (blackJack(dealerCards) < 21) & (blackJack(dealerCards) < playerBlackJack):
                             dealerCards += [baralho.pegarCarta()]
 
-                    if (playerBlackJack > 21) | (dealerBlackJack < 21):
+                    if (playerBlackJack > 21) | (blackJack(dealerCards) <= 21):
                         # Mesa ganhou e fim da rodada
                         resposta = {
                             "code": 26,
@@ -219,6 +244,26 @@ def handle_client(csocket, endereco):
                                 "playerCards": playerCards,
                             }
                         }
+                    if(blackJack(dealerCards)==blackJack(playerCards)):
+                        # Empate
+                        total+=bet
+                        resposta = {
+                            "code": 26,
+                            "payload": {
+                                "money": total,
+                                "bet": bet,
+                                "round": round,
+                                "dealerCards": dealerCards,
+                                "playerCards": playerCards,
+                            }
+                        }
+                    dealerCards = []
+                    playerCards = []
+                    baralho = Baralho()
+                    if total==0:
+                        resposta = {
+                            "code": 28
+                        }
             case 23:
                 # Desistir // fim da rodada
                 total += bet/2
@@ -232,13 +277,21 @@ def handle_client(csocket, endereco):
                         "playerCards": playerCards,
                     }
                 }
+                dealerCards = []
+                playerCards = []
+                baralho = Baralho()
+                if total==0:
+                    resposta = {
+                        "code": 28
+                    }
             case 27:
                 # Sair
                 resposta = {
                     "code": 28
                 }
-                csocket.send(json.dumps(resposta).encode('utf-8'))
-                break
+                dealerCards = []
+                playerCards = []
+                baralho = Baralho()
 
         csocket.send(json.dumps(resposta).encode('utf-8'))
     csocket.close()

@@ -6,6 +6,9 @@ def mensagemInicial(dinheiro_inicial):
     Valor: '''
 
 def mensagemNormal(dinheiro, aposta, rodada, cartas_dealer, suas_cartas):
+    cartas_dealer=' '.join(map(str, cartas_dealer))
+    suas_cartas=' '.join(map(str, suas_cartas))
+
     return f'''
     
     SALDO: ${dinheiro: <6}   VALOR APOSTADO: ${aposta: <6}   RODADA: {rodada: <3}
@@ -24,8 +27,34 @@ def mensagemNormal(dinheiro, aposta, rodada, cartas_dealer, suas_cartas):
 
 def mensagemFimDeRodada(dinheiro, aposta_velha, rodada, cartas_dealer, suas_cartas, perdeu_ou_ganhou):
     valor_apostado = 0
+    cartas_dealer=' '.join(map(str, cartas_dealer))
+    suas_cartas=' '.join(map(str, suas_cartas))
+
+    if perdeu_ou_ganhou == 'empatou':
+        return f'''
     
-    perdeu_ou_ganhou = 'ganhou' if perdeu_ou_ganhou else 'perdeu'
+    SALDO: ${dinheiro: <6}   VALOR APOSTADO: ${valor_apostado : <6}   RODADA: {rodada: <3}
+
+    Cartas Dealer: {cartas_dealer}
+
+    Suas Cartas: {suas_cartas}
+
+    Você {perdeu_ou_ganhou} na rodada {rodada} e recebeu sua aposta de volta
+    Quanto Você quer apostar?
+    Valor: '''
+    
+    if perdeu_ou_ganhou == 'desistiu':
+        return f'''
+    
+    SALDO: ${dinheiro: <6}   VALOR APOSTADO: ${valor_apostado : <6}   RODADA: {rodada: <3}
+
+    Cartas Dealer: {cartas_dealer}
+
+    Suas Cartas: {suas_cartas}
+
+    Você {perdeu_ou_ganhou} da rodada {rodada} e recebeu ${aposta_velha/2} de volta
+    Quanto Você quer apostar?
+    Valor: '''
 
     return f'''
     
@@ -35,7 +64,7 @@ def mensagemFimDeRodada(dinheiro, aposta_velha, rodada, cartas_dealer, suas_cart
 
     Suas Cartas: {suas_cartas}
 
-    Você {perdeu_ou_ganhou} ${aposta_velha} na rodada 3
+    Você {perdeu_ou_ganhou} ${aposta_velha} na rodada {rodada}
     Quanto Você quer apostar?
     Valor: '''
 
