@@ -266,7 +266,7 @@ def handle_client(csocket, endereco):
                         }
             case 23:
                 # Desistir // fim da rodada
-                total += bet/2
+                total += bet//2
                 resposta = {
                     "code": 26,
                     "payload": {
