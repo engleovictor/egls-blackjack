@@ -6,14 +6,14 @@ def mensagemInicial(dinheiro_inicial):
     Valor: '''
 
 def mensagemNormal(dinheiro, aposta, rodada, cartas_dealer, suas_cartas):
-    cartas_dealer=' '.join(map(str, cartas_dealer))
+    
     suas_cartas=' '.join(map(str, suas_cartas))
 
     return f'''
     
     SALDO: ${dinheiro: <6}   VALOR APOSTADO: ${aposta: <6}   RODADA: {rodada: <3}
     
-    Cartas Dealer: {cartas_dealer}
+    Cartas Dealer: {cartas_dealer[0]}, XX
 
     Suas Cartas: {suas_cartas}
 
@@ -69,6 +69,10 @@ def mensagemFimDeRodada(dinheiro, aposta_velha, rodada, cartas_dealer, suas_cart
     Valor: '''
 
 def mensagemFimDeJogo(dinheiro, valor_apostado, rodada, cartas_dealer, suas_cartas):
+    
+    cartas_dealer=' '.join(map(str, cartas_dealer))
+    suas_cartas=' '.join(map(str, suas_cartas))
+    
     return f'''
 
     SALDO: ${dinheiro: <6}   VALOR APOSTADO: ${valor_apostado : <6}   RODADA: {rodada: <3}
