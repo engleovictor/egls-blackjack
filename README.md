@@ -32,7 +32,7 @@ python3 Server/server.py
 Para o cliente se conectar ao servidor, ele deve executar:
 
 ```bash
-python3 MainClient.py IP_DO_SERVIDOR PORTA
+python3 Client/MainClient.py IP_DO_SERVIDOR PORTA
 ```
 Se o usuário cliente tem dúvida do IP_DO_SERVIDOR ou da PORTA, ele deve consultar a mensagem que é mostrada no início da execução do servidor
 
