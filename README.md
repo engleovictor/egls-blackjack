@@ -12,6 +12,7 @@ Python 3.11.X
 pip install psutil==5.9.4
 pip install colorama==0.4.5
 git clone https://github.com/engleovictor/egls-blackjack
+cd egls-blackjack
 ```
 
 ## Uso
