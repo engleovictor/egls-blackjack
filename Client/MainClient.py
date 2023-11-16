@@ -1,10 +1,11 @@
 import jogoClient
 import socket
 import json
+import sys
 
 def main():
-    server_ip = "172.15.3.141" # Substituir pelo IP do servidor 
-    server_port = 8888       # Porta do servidor
+    server_ip = sys.argv[1]              # Substituir pelo IP do servidor 
+    server_port = int(sys.argv[2])       # Porta do servidor
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
