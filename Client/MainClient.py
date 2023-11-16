@@ -34,7 +34,7 @@ def main():
 
         resposta = client_socket.recv(1024).decode('utf-8')
 
-        print(f'{resposta}')
+        # print(f'{resposta}')
 
         dadosDoServidor: dict = json.loads(resposta)
 
@@ -55,7 +55,7 @@ def main():
                 status='ganhou'
             elif dinheiroDoClient == dinheiroDoClientAnterior + apostaAntiga:
                 status='empatou'
-            elif dinheiroDoClient == dinheiroDoClientAnterior + apostaAntiga/2:
+            elif dinheiroDoClient == dinheiroDoClientAnterior + apostaAntiga//2:
                 status='desistiu'
             else:
                 status='perdeu'
