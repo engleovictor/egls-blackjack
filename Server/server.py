@@ -135,13 +135,20 @@ def handle_client(csocket, endereco):
                             "playerCards": playerCards,
                         }
                     }
+                    if total==0:
+                        resposta = {
+                            "code": 28,
+                            "payload": {
+                            "money": total,
+                            "bet": bet,
+                            "round": round,
+                            "dealerCards": dealerCards,
+                            "playerCards": playerCards,
+                        }
+                        }
                     dealerCards = []
                     playerCards = []
                     baralho = Baralho()
-                    if total==0:
-                        resposta = {
-                            "code": 28
-                        }
 
             case 21:
                 # Jogador escolheu Manter
@@ -187,13 +194,20 @@ def handle_client(csocket, endereco):
                             "playerCards": playerCards,
                         }
                     }
+                if total==0:
+                    resposta = {
+                        "code": 28,
+                        "payload": {
+                        "money": total,
+                        "bet": bet,
+                        "round": round,
+                        "dealerCards": dealerCards,
+                        "playerCards": playerCards,
+                        }
+                    }
                 dealerCards = []
                 playerCards = []
                 baralho = Baralho()
-                if total==0:
-                    resposta = {
-                        "code": 28
-                    }
             case 22:
                 # Dobrar
                 if bet > total:
@@ -257,13 +271,20 @@ def handle_client(csocket, endereco):
                                 "playerCards": playerCards,
                             }
                         }
+                    if total==0:
+                        resposta = {
+                            "code": 28,
+                            "payload": {
+                            "money": total,
+                            "bet": bet,
+                            "round": round,
+                            "dealerCards": dealerCards,
+                            "playerCards": playerCards,
+                        }
+                        }
                     dealerCards = []
                     playerCards = []
                     baralho = Baralho()
-                    if total==0:
-                        resposta = {
-                            "code": 28
-                        }
             case 23:
                 # Desistir // fim da rodada
                 total += bet//2
@@ -282,7 +303,14 @@ def handle_client(csocket, endereco):
                 baralho = Baralho()
                 if total==0:
                     resposta = {
-                        "code": 28
+                        "code": 28,
+                        "payload": {
+                        "money": total,
+                        "bet": bet,
+                        "round": round,
+                        "dealerCards": dealerCards,
+                        "playerCards": playerCards,
+                    }
                     }
             case 27:
                 # Sair

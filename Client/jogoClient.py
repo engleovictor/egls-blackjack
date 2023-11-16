@@ -49,8 +49,8 @@ def inicioRequest(dinheiro):
             
         return {'code': 10, 'payload': {'bet': opt}}
     
-def fimDeJogoMessage():
-    print(egls_inteface.mensagemFimDeJogo())
+def fimDeJogoMessage(*args):
+    print(egls_inteface.mensagemFimDeJogo(*args))
     return {'code': 27}
 
 def fimDeRodadaRequest(*args):
