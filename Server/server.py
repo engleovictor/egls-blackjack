@@ -3,20 +3,32 @@ import threading
 import psutil
 import pathlib
 import colorama
+import platform
 import json
+import sys
 from Baralho import Baralho
 
 
 colorama.init(autoreset=True)
 
 def getIPAddress(interface='wlan0'):
-    interfaces = psutil.net_if_addrs()
+    so = platform.system()
+    if so == 'Linux':
+        interfaces = psutil.net_if_addrs()
 
-    for fam, addr, *_ in interfaces[interface]:
-        if fam == 2:
-            return addr
-        
-    return 'Não Conectado'
+        for fam, addr, *_ in interfaces[interface]:
+            if fam == 2:
+                return addr
+    
+    elif so == 'Windows':
+        return socket.gethostbyname(socket.gethostname())
+    
+    else:
+        try:
+            return sys.argv[1]
+        except IndexError:
+            print(colorama.Back.RED + "IP não detectado, para inserir manualmente excute: \"python3 server.py IP_DA_SUA_MAQUINA\"")
+            exit()
 
 def getServerInfo(filename=(str(pathlib.Path(__file__).parent)+'/server_info')):
     server_info = {}
