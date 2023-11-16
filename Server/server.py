@@ -75,6 +75,7 @@ def handle_client(csocket, endereco):
     
     while True:
         mensagem = csocket.recv(1024).decode('utf-8')
+        print(mensagem)
         # Se a mensagem estiver vazia, o cliente se desconectou
         if not mensagem:
             print(f"Jogador {endereco} se desconectou")
@@ -340,6 +341,7 @@ def handle_client(csocket, endereco):
                 playerCards = []
                 baralho = Baralho()
 
+        print(resposta)
         csocket.send(json.dumps(resposta).encode('utf-8'))
     csocket.close()
 
