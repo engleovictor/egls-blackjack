@@ -287,7 +287,14 @@ def handle_client(csocket, endereco):
             case 27:
                 # Sair
                 resposta = {
-                    "code": 28
+                    "code": 28,
+                    "payload": {
+                        "money": total,
+                        "bet": bet,
+                        "round": round,
+                        "dealerCards": dealerCards,
+                        "playerCards": playerCards,
+                    }
                 }
                 dealerCards = []
                 playerCards = []

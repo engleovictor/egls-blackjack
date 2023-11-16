@@ -27,7 +27,7 @@ def replyMannager(dados: dict):
         return fimDeRodadaRequest(*params)
     
     elif  dados['code'] == 28: # sem payload fim de jogo
-        fimDeJogoMessage()
+        fimDeJogoMessage(*params)
 
 def inicioRequest(dinheiro):
     print(egls_inteface.mensagemInicial(dinheiro), end='')

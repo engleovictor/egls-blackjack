@@ -68,8 +68,14 @@ def mensagemFimDeRodada(dinheiro, aposta_velha, rodada, cartas_dealer, suas_cart
     Quanto Você quer apostar?
     Valor: '''
 
-def mensagemFimDeJogo():
+def mensagemFimDeJogo(dinheiro, valor_apostado, rodada, cartas_dealer, suas_cartas):
     return f'''
+
+    SALDO: ${dinheiro: <6}   VALOR APOSTADO: ${valor_apostado : <6}   RODADA: {rodada: <3}
+
+    Cartas Dealer: {cartas_dealer}
+
+    Suas Cartas: {suas_cartas}
 
     Você perdeu o Jogo!!
     Reconecte-se se quiser jogar novamente.
